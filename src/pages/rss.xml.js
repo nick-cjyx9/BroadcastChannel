@@ -1,5 +1,5 @@
 import rss from '@astrojs/rss'
-
+import sanitizeHtml from 'sanitize-html'
 import { getChannelInfo } from '../lib/telegram'
 
 // eslint-disable-next-line style/semi
@@ -23,7 +23,14 @@ export async function GET(Astro) {
       title: item.title,
       description: item.description,
       pubDate: new Date(item.datetime),
-      content: item.content,
+      content: sanitizeHtml(item.content, {
+        allowedTags: sanitizeHtml.defaults.allowedTags.concat(['img', 'video', 'audio']),
+        allowedAttributes: {
+          video: ['src', 'width', 'height', 'poster'],
+          audio: ['src', 'controls'],
+          img: ['src', 'width', 'height', 'loading'],
+        },
+      }),
     })),
   })
 }
